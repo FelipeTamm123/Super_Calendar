@@ -1,0 +1,10 @@
+fastapi==0.163.1
+uvicorn==0.54.0
+supabase==2.34.1
+pydantic-settings==2.16.3
+pyjwt[crypto]==2.15.1
+google-genai==3.5.0
+python-multipart==0.0.34
+tzdata==2026.6
+httpx
+pytest==9.2.0

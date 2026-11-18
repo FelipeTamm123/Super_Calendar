@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "@fontsource-variable/manrope";
+
+/*
+ * Tema de Super Calendar
+ * - El modo oscuro se activa con la clase .dark en <html> (la elige el usuario: sistema / claro / oscuro).
+ * - Paleta en azul marino: los grises neutros ("zinc") se redefinen con un tinte azul, así toda la app
+ *   toma el color sin cambiar cada componente.
+ * - "brand" cambia según el tema: azul profundo en claro, azul más luminoso en oscuro (para que contraste).
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Neutros azulados (claro -> marino profundo) */
+  --color-zinc-50: #f4f6fb;
+  --color-zinc-100: #e8ecf5;
+  --color-zinc-200: #d5dcea;
+  --color-zinc-300: #b4bfd5;
+  --color-zinc-400: #8492ae;
+  --color-zinc-500: #5f6d8a;
+  --color-zinc-600: #46536e;
+  --color-zinc-700: #2f3b56;
+  --color-zinc-800: #1c2740;
+  --color-zinc-900: #121b30;
+  --color-zinc-950: #0a1222;
+
+  /* Marino fijo para la barra lateral */
+  --color-navy-800: #13214a;
+  --color-navy-900: #0d1838;
+  --color-navy-950: #081129;
+
+  /* Acentos del logo */
+  --color-accent-cyan: #22c7e6;
+  --color-accent-violet: #7c4dff;
+
+  /* Bordes menos redondeados */
+  --radius-lg: 0.4rem;
+  --radius-xl: 0.55rem;
+  --radius-2xl: 0.7rem;
+}
+
+/* Colores de marca que dependen del tema */
+@theme inline {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+}
+
+:root {
+  --brand-50: #edf2ff;
+  --brand-100: #d9e3fc;
+  --brand-500: #2f5fd0;
+  --brand-600: #1f4bb8;
+  --brand-700: #183b93;
+  color-scheme: light;
+}
+
+:root.dark {
+  --brand-50: #13224a;
+  --brand-100: #1d3266;
+  --brand-500: #5b8cff;
+  --brand-600: #4b7bf0;
+  --brand-700: #3a66d6;
+  color-scheme: dark;
+}
+
+@layer base {
+  body {
+    @apply min-h-dvh bg-zinc-50 font-sans text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.015em;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  ::selection {
+    @apply bg-brand-100 text-zinc-900 dark:text-zinc-50;
+  }
+}
