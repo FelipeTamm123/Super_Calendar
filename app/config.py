@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from pydantic import SecretStr, field_validator
+from pydantic import SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
@@ -36,10 +36,28 @@ class Settings(BaseSettings):
     app_env: str = "development"
     cors_origins: list[str] = []
 
+    # Variables que Vercel define solo en cada deploy (no hace falta cargarlas a mano)
+    vercel_env: str | None = None  # "production" | "preview" | "development"
+    vercel_url: str | None = None  # dominio de este deploy, sin https://
+    vercel_project_production_url: str | None = None  # dominio de producción, sin https://
+
     @field_validator("supabase_url", "public_api_url")
     @classmethod
     def _strip_slash(cls, v: str) -> str:
         return v.rstrip("/")
+
+    @model_validator(mode="after")
+    def _vercel_defaults(self):
+        """En Vercel, front y back comparten dominio: si no se configuraron a mano, las URLs públicas
+        salen del dominio del deploy (producción o preview)."""
+        domain = self.vercel_project_production_url if self.vercel_env == "production" else self.vercel_url
+        if self.vercel_env in ("production", "preview") and domain:
+            base = f"https://{domain}".rstrip("/")
+            if "public_api_url" not in self.model_fields_set:
+                self.public_api_url = base
+            if "google_redirect_uri" not in self.model_fields_set:
+                self.google_redirect_uri = f"{base}/calendario/google/callback"
+        return self
 
     @property
     def google_enabled(self) -> bool:
@@ -65,7 +83,8 @@ class Settings(BaseSettings):
 
     @property
     def is_production(self) -> bool:
-        return self.app_env.lower() == "production"
+        """Producción = cookies solo por HTTPS y sin /docs. En Vercel (producción y previews, ambos HTTPS) se activa solo."""
+        return self.app_env.lower() == "production" or self.vercel_env in ("production", "preview")
 
 
 @lru_cache

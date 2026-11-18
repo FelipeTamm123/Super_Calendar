@@ -1,0 +1,20 @@
+# Nunca subir secretos ni entornos locales
+.env
+.env.*
+!.env.example
+.venv/
+.tools/
+.vscode/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Frontend: Vercel instala y compila solo
+web/node_modules/
+web/dist/
+
+# No hacen falta en el deploy
+tests/
+docs/
+*.md
+!README.md

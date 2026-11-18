@@ -146,3 +146,23 @@ se guarda cifrado. Al desconectar se borra el calendario «Super Calendar» y se
 **Link .ics desde Google:** Google lee el link desde internet, así que con la app en `localhost` no puede
 suscribirse; hace falta publicarla (y poner `PUBLIC_API_URL`) o usar un túnel. Mientras tanto, *Descargar .ics*
 permite importarlo a mano.
+
+## Deploy en Vercel
+
+`vercel.json` define un proyecto con dos servicios en el mismo dominio:
+
+| Servicio | Carpeta | Público en |
+|---|---|---|
+| `api` (FastAPI, `app.main:app`) | `.` | `/api/*` y `/health` |
+| `web` (Vite, SPA) | `web/` | todo lo demás (`/`, `/hoy`, `/calendario`, …) |
+
+El navegador llama a `/api/v1` en el mismo dominio, así que no hace falta CORS ni bindings.
+
+1. Variables de entorno en Vercel (Settings → Environment Variables): `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`,
+   `SUPABASE_SECRET_KEY`, `SUPABASE_JWKS_URL`, `GEMINI_API_KEY` y, si usás Google, `GOOGLE_CLIENT_ID` y
+   `GOOGLE_CLIENT_SECRET`. `PUBLIC_API_URL` y `GOOGLE_REDIRECT_URI` se calculan solas a partir del dominio.
+2. En Google Cloud, agregar como URI de redireccionamiento `https://<tu-dominio>/calendario/google/callback`.
+3. Probar local con `vercel dev`, y después `vercel deploy`.
+
+Python: 3.13 (`.python-version`). Dependencias de producción en `requirements.txt`; para tests,
+`pip install -r requirements-dev.txt`.

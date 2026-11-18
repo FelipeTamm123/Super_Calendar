@@ -211,3 +211,32 @@ def test_get_db_no_cierra_el_pool_http_compartido():
     get_db(USER)
     get_db(USER)
     assert not get_http_client().is_closed
+
+
+# --- Configuración en Vercel ---------------------------------------------------
+
+def test_en_vercel_las_urls_salen_del_dominio(monkeypatch):
+    from app.config import Settings
+    monkeypatch.setenv("VERCEL_ENV", "production")
+    monkeypatch.setenv("VERCEL_PROJECT_PRODUCTION_URL", "super-calendar.vercel.app")
+    s = Settings()
+    assert s.public_api_url == "https://super-calendar.vercel.app"
+    assert s.google_redirect_uri == "https://super-calendar.vercel.app/calendario/google/callback"
+    assert s.is_production
+
+
+def test_en_vercel_respeta_urls_configuradas(monkeypatch):
+    from app.config import Settings
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("VERCEL_URL", "sc-abc123.vercel.app")
+    monkeypatch.setenv("PUBLIC_API_URL", "https://mi-dominio.com/")
+    s = Settings()
+    assert s.public_api_url == "https://mi-dominio.com"
+    assert s.google_redirect_uri == "https://sc-abc123.vercel.app/calendario/google/callback"
+
+
+def test_local_no_cambia_nada(monkeypatch):
+    from app.config import Settings
+    monkeypatch.delenv("VERCEL_ENV", raising=False)
+    s = Settings()
+    assert s.public_api_url == "http://localhost:8000" and not s.is_production
